@@ -14,6 +14,10 @@ De volledige opdracht staat op de cursussite.
 5. Schrijf `docs/analysedossier.md`, screenshots in `docs/images/`.
 6. Dien in: `./scripts/submit.sh` (Windows: in **Git Bash**). Je resultaat verschijnt onder **Releases**.
 
+> **Push geweigerd met `refusing to allow an OAuth App to create or update workflow`?**
+> Je token mag geen workflows wijzigen. Voeg die rechten toe met `gh auth refresh -s workflow`
+> (als je met `gh` inlogt), of push via SSH.
+
 ## Links
 
 - Productie: _vul aan_
