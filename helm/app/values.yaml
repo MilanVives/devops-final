@@ -1,0 +1,5 @@
+# Gemeenschappelijke waarden. Alles wat per omgeving verschilt, zet je in values-test.yaml / values-prod.yaml.
+
+# nodeinfo: toont op /nodeinfo de naam van de node. Nodig voor de multi-node-controle: niet verwijderen.
+nodeinfo:
+  replicas: 3

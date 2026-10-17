@@ -1,0 +1,69 @@
+# nodeinfo — NIET VERWIJDEREN. Antwoordt op elke request met de naam van de node waarop de pod draait.
+# De automatische controle roept https://<jouw-domein>/nodeinfo herhaaldelijk op en verwacht
+# minstens 3 verschillende nodes. Routeer /nodeinfo via je ingress of Cloudflare tunnel naar de
+# Service "nodeinfo" (poort 80).
+# keepalive_timeout 0 sluit elke verbinding, zodat elke request opnieuw over de pods verdeeld wordt.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodeinfo
+data:
+  default.conf.template: |
+    server {
+      listen 8080;
+      keepalive_timeout 0;
+      location / {
+        default_type text/plain;
+        return 200 "${NODE_NAME}\n";
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeinfo
+  labels: { app: nodeinfo }
+spec:
+  replicas: {{ .Values.nodeinfo.replicas }}
+  selector:
+    matchLabels: { app: nodeinfo }
+  template:
+    metadata:
+      labels: { app: nodeinfo }
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels: { app: nodeinfo }
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef: { fieldPath: spec.nodeName }
+          volumeMounts:
+            - name: template
+              mountPath: /etc/nginx/templates
+          readinessProbe:
+            httpGet: { path: /, port: 8080 }
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { cpu: 50m, memory: 32Mi }
+      volumes:
+        - name: template
+          configMap: { name: nodeinfo }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeinfo
+spec:
+  selector: { app: nodeinfo }
+  ports:
+    - port: 80
+      targetPort: 8080

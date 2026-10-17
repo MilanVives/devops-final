@@ -1,0 +1,6 @@
+# Jouw gegevens. De automatische controles lezen dit bestand.
+naam: Voornaam Achternaam
+studentennummer: r0123456
+github: jouw-github-username
+dockerhub: jouw-dockerhub-username
+live_url: https://jouw-domein.example   # HTTPS-URL van je productie-omgeving
